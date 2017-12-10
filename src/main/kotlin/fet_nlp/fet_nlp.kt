@@ -7,6 +7,7 @@ import opennlp.tools.tokenize.TokenizerModel
 import java.io.File
 import java.io.FileInputStream
 import java.lang.Exception
+import java.nio.file.Paths
 
 
 fun main(args: Array<String>) {
@@ -22,8 +23,9 @@ val SENTENCES = listOf("Jack was taller than Peter. ",
 fun openNLPNERExample() {
     println("openNLP NER Example")
     try {
-        FileInputStream(File("c://code//openNlp//en-token.zip")).use { tokenModelStream ->
-            FileInputStream(File("c://code//openNlp//en-ner-person.zip")).use { nerModelInputStream ->
+        val path = Paths.get("").toAbsolutePath().toString()
+        FileInputStream(File("$path//data//en-token.zip")).use { tokenModelStream ->
+            FileInputStream(File("$path//data//en-ner-person.zip")).use { nerModelInputStream ->
                 val tokenizerModel = TokenizerModel(tokenModelStream)
                 val tokenizer = TokenizerME(tokenizerModel)
                 val nameModel = TokenNameFinderModel(nerModelInputStream)
