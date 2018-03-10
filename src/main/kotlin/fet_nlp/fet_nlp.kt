@@ -1,5 +1,9 @@
 package fet_nlp
 
+import com.aliasi.classify.Classification
+import com.aliasi.classify.Classified
+import com.aliasi.classify.DynamicLMClassifier
+import com.aliasi.util.Files
 import opennlp.tools.doccat.DoccatFactory
 import opennlp.tools.doccat.DoccatModel
 import opennlp.tools.doccat.DocumentCategorizerME
@@ -25,14 +29,18 @@ fun main(args: Array<String>) {
 //    openNLPNERExample()
 //    testModel(getTrainModel(getTrainingText()))
 
-    println("Categorize part.")
-    generateTrainingData()
-    trainingOpenNLPClassificationModel()
-    useOpenNLPClassificationModel()
+//    println("Categorize part.")
+//    generateTrainingData()
+//    trainingOpenNLPClassificationModel()
+//    useOpenNLPClassificationModel()
+
+    trainSentimentAnalysisClassifier()
+    useSentimentAnalysisClassifier()
 }
 
+// Tokenize part.
 private val SENTENCES = listOf("Jack was taller than Peter. ",
-        "Howewer, Mr. Smith was taller than both of them. ",
+        "However, Mr. Smith was taller than both of them. ",
         "The same could be said for Mary and Tommy. ",
         "Mary Anne was the tallest."
 )
@@ -137,6 +145,8 @@ private fun processData(tokenModelStream: FileInputStream, nameModel: TokenNameF
     }
 }
 
+
+// Categorize part.
 private fun generateTrainingData() {
     println("Generate training data.")
     try {
@@ -215,4 +225,53 @@ private fun useOpenNLPClassificationModel() {
         }
         println("\nBest category: ${categorizer.getBestCategory(outcomes)}")
     }
+}
+
+
+// Classification part.
+private val CATEGORIES = listOf("neg", "pos").toTypedArray()
+private val NGRAMSIZE = 6
+private val classifier = DynamicLMClassifier.createNGramProcess(
+        CATEGORIES,
+        NGRAMSIZE
+)
+
+private fun trainSentimentAnalysisClassifier() {
+    println("Training the Sentiment Analysis Classifier...")
+    val path = Paths.get("").toAbsolutePath().toString()
+    val trainingDirectory = File("$path//data//txt_sentoken")
+    CATEGORIES.forEach { category ->
+        val classification = Classification(category)
+        val file = File(trainingDirectory, category)
+        val trainingFiles = file.listFiles()
+        trainingFiles.forEach { trainingFile ->
+            try{
+                val review = Files.readFromFile(trainingFile, "ISO-8859-1")
+                val classified = Classified<CharSequence>(review, classification)
+                classifier.handle(classified)
+            } catch (ex: IOException) {
+                ex.printStackTrace()
+            }
+        }
+    }
+}
+
+private fun useSentimentAnalysisClassifier() {
+    println("Make classification...")
+    var review = ""
+    val path = Paths.get("").toAbsolutePath().toString()
+    try {
+        BufferedReader(FileReader("$path//data//review.txt")).use { reviewReader ->
+            val sb = StringBuilder()
+            reviewReader.lineSequence().forEach { line ->
+                sb.append(line).append(" ")
+            }
+            review = sb.toString()
+        }
+    } catch(ex: IOException) {
+        ex.printStackTrace()
+    }
+    println("Text: $review")
+    val classification = classifier.classify(review)
+    println("Best Category: ${classification.bestCategory()}")
 }

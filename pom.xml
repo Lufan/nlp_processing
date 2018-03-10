@@ -12,7 +12,7 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <kotlin.version>1.2.21</kotlin.version>
+        <kotlin.version>1.2.30</kotlin.version>
         <junit.version>4.12</junit.version>
     </properties>
 
@@ -39,6 +39,11 @@
             <artifactId>opennlp-tools</artifactId>
             <version>1.8.3</version>
         </dependency>
+	    <dependency>
+		    <groupId>de.julielab</groupId>
+		    <artifactId>aliasi-lingpipe</artifactId>
+		    <version>4.1.0</version>
+	    </dependency>
     </dependencies>
 
     <build>
